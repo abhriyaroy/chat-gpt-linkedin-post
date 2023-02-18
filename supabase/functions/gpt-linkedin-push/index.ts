@@ -2,13 +2,15 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-import {chatGptToken, openAiOrganisation, openAiUrl, promptQuery, linkedInUrl, linkedInOAuthToken, linkedInUserId} from "./secrets.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 serve(async (req) => {
-  const { name } = await req.json()
+    console.log(Deno.env.get('promptQuery'))
+    console.log(Deno.env.get('linkedInUrl'))
+    console.log(Deno.env.get('linkedInOAuthToken'))
+    console.log(Deno.env.get('linkedInUserId'))
     var text = await getPromtText()
+    console.log(text)
     var postToLinkedInResponse = await postToLinked(text)
 
   return new Response(
@@ -21,13 +23,16 @@ serve(async (req) => {
 })
 
 function getPromtText(): Promise<String> {
-
-    return fetch(openAiUrl, {
+    var chatGptToken = Deno.env.get('chatGptToken');
+    var openAiUrl = Deno.env.get('openAiUrl');
+    var openAiOrganisation = Deno.env.get('openAiOrganisation');
+    console.log(chatGptToken + ", " + openAiUrl + "," + openAiOrganisation);
+    return fetch(openAiUrl , {
         "method": "POST",
         "headers" : {
             "content-type": "application/json",
-            "Authorization" : "Bearer $chatGptToken",
-            "OpenAI-Organization" : '$openAiOrganisation'
+            "Authorization" : "Bearer " + chatGptToken,
+            "OpenAI-Organization" : openAiOrganisation
         },
         "body" : getBodyForRequest()
     })
@@ -40,35 +45,38 @@ function getPromtText(): Promise<String> {
 function getBodyForRequest() : String {
     return JSON.stringify({
         model: "text-davinci-003",
-        prompt: '$promptQuery',
-        max_tokens: 100
+        prompt: Deno.env.get('promptQuery'),
+        max_tokens: 500
     })
 }
 
 function postToLinked(textToPost : String) : Promise<String> {
-    return fetch('$linkedInUrl', {
+    console.log(Deno.env.get('linkedInUrl') + ", " + "Bearer " + Deno.env.get('linkedInOAuthToken'))
+    return fetch(Deno.env.get('linkedInUrl'), {
         "method": "POST",
     "headers" : {
             "content-type": "application/json",
-        "Authorization" : "Bearer $linkedInOAuthToken",
+        "Authorization" : "Bearer " + Deno.env.get('linkedInOAuthToken'),
     },
-    "body" : getBodyForRequest()
+        "body" : getLinkedInPostBody(textToPost)
     })
                 .then(res => res.json())
                 .then(res => {
-                    return res.choices[0].text
+                    console.log(res)
+                    return res
                 })
 }
 
 function getLinkedInPostBody(textToPost : String) : String {
-    return JSON.stringify(
+
+    var a = JSON.stringify(
             {
-                author: 'urn:li:person:$linkedInUserId',
+                author: 'urn:li:person:' + Deno.env.get('linkedInUserId'),
                 lifecycleState: "PUBLISHED",
                 specificContent: {
                     "com.linkedin.ugc.ShareContent": {
                         shareCommentary: {
-                            text: textToPost
+                            text: "ChatGpt's advice to Android developers for today is " + textToPost + "\n #android #AndroidDev #androiddevelopers #advice #programming #chatgpt #coding"
                         },
                         shareMediaCategory: "NONE"
                     }
@@ -78,5 +86,7 @@ function getLinkedInPostBody(textToPost : String) : String {
                 }
             }
     )
+    console.log(a)
+    return a
 
 }
