@@ -77,7 +77,7 @@ function getLinkedInPostBody(textToPost : String) : String {
                     "com.linkedin.ugc.ShareContent": {
                         shareCommentary: {
                             text: "ChatGpt's advice to Android developers for today is " + textToPost
-                            + "\n \n \nP.s. This is an automated post which queries ChatGpt for a prompt asking for an advice for Android Devs and posts it to Linkedin. I do not modify the responses from ChatGPT. Ypu can find the script at - https://lnkd.in/gMc_5jVB" +
+                            + "\n \n \nP.s. This is an automated post which queries ChatGpt for a prompt asking for an advice for Android Devs and posts it to Linkedin. I do not modify the responses from ChatGPT. You can find the script at - https://lnkd.in/gMc_5jVB" +
                             "\n #android #AndroidDev #androiddevelopers #advice #programming #chatgpt #coding"
                         },
                         shareMediaCategory: "NONE"
